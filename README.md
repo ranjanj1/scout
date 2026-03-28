@@ -1,14 +1,14 @@
-# scout
+# contextgrep
 
-A fast, offline document search CLI built in Rust. No vector embeddings, no BM25, no ML dependencies — just deterministic trigram indexing, SimHash fingerprinting, and structural metadata search.
+Grep your documents with context. Fast offline search for PDFs, DOCX, Markdown, and code — no vectors, no cloud, no ML dependencies. Trigram indexing + SimHash fingerprinting built in Rust.
 
 ```
 scout index ./docs/
-scout search "purchase agreement"
-scout query 'type:contract amount:>1M path:/legal'
-scout similar ./contract_draft.docx
+scout search "purchase agreement"       # grep with context
+scout query 'type:contract amount:>1M'  # structured DSL
+scout similar ./contract_draft.docx    # find near-duplicates
 scout recent --since 7d
-scout clusters ./docs/ --bits=4
+scout clusters ./docs/
 ```
 
 ---
@@ -18,7 +18,7 @@ scout clusters ./docs/ --bits=4
 **1. Install the MCP server** (one-time)
 
 ```bash
-claude mcp add scout npx @ranjanj4/scout-mcp@latest
+claude mcp add scout npx contextgrep@latest
 ```
 
 > macOS Homebrew users: use `$(which npx)` instead of `npx`
@@ -99,7 +99,7 @@ No Rust required. Add this to your MCP config:
   "mcpServers": {
     "scout": {
       "command": "npx",
-      "args": ["@ranjanj4/scout-mcp@latest"]
+      "args": ["contextgrep@latest"]
     }
   }
 }
@@ -108,12 +108,12 @@ No Rust required. Add this to your MCP config:
 Or via Claude Code CLI:
 
 ```bash
-claude mcp add scout npx @ranjanj4/scout-mcp@latest
+claude mcp add scout npx contextgrep@latest
 ```
 
 > **macOS (Homebrew Node.js):** If the server fails to connect, use the full path to `npx`:
 > ```bash
-> claude mcp add scout $(which npx) @ranjanj4/scout-mcp@latest
+> claude mcp add scout $(which npx) contextgrep@latest
 > ```
 
 With a custom index location:
@@ -123,7 +123,7 @@ With a custom index location:
   "mcpServers": {
     "scout": {
       "command": "npx",
-      "args": ["@ranjanj4/scout-mcp@latest", "--index", "/path/to/your/index"]
+      "args": ["contextgrep@latest", "--index", "/path/to/your/index"]
     }
   }
 }

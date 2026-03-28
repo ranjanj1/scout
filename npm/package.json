@@ -1,8 +1,8 @@
 {
-  "name": "@ranjanj4/scout-mcp",
+  "name": "contextgrep",
   "version": "0.1.1",
-  "description": "Fast offline document search MCP server — trigram index, SimHash, zero dependencies",
-  "keywords": ["mcp", "search", "documents", "offline", "rag"],
+  "description": "MCP server for fast offline document search — grep your files with context",
+  "keywords": ["mcp", "search", "grep", "documents", "offline", "rag", "file-search", "context"],
   "homepage": "https://github.com/ranjanj1/scout",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
   },
   "license": "MIT",
   "bin": {
-    "scout-mcp": "bin/scout-mcp.js"
+    "contextgrep": "bin/scout-mcp.js"
   },
   "engines": {
     "node": ">=18"
