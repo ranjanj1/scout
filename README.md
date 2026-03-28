@@ -82,6 +82,11 @@ Or via Claude Code CLI:
 claude mcp add scout npx @ranjanj4/scout-mcp@latest
 ```
 
+> **macOS (Homebrew Node.js):** If the server fails to connect, use the full path to `npx`:
+> ```bash
+> claude mcp add scout $(which npx) @ranjanj4/scout-mcp@latest
+> ```
+
 With a custom index location:
 
 ```json
