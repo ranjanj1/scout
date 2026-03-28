@@ -18,7 +18,7 @@ contextgrep clusters ./docs/
 **1. Install the MCP server** (one-time)
 
 ```bash
-claude mcp add scout npx contextgrep@latest
+claude mcp add contextgrep npx contextgrep@latest
 ```
 
 > macOS Homebrew users: use `$(which npx)` instead of `npx`
@@ -97,7 +97,7 @@ No Rust required. Add this to your MCP config:
 ```json
 {
   "mcpServers": {
-    "scout": {
+    "contextgrep": {
       "command": "npx",
       "args": ["contextgrep@latest"]
     }
@@ -108,12 +108,12 @@ No Rust required. Add this to your MCP config:
 Or via Claude Code CLI:
 
 ```bash
-claude mcp add scout npx contextgrep@latest
+claude mcp add contextgrep npx contextgrep@latest
 ```
 
 > **macOS (Homebrew Node.js):** If the server fails to connect, use the full path to `npx`:
 > ```bash
-> claude mcp add scout $(which npx) contextgrep@latest
+> claude mcp add contextgrep $(which npx) contextgrep@latest
 > ```
 
 With a custom index location:
@@ -121,7 +121,7 @@ With a custom index location:
 ```json
 {
   "mcpServers": {
-    "scout": {
+    "contextgrep": {
       "command": "npx",
       "args": ["contextgrep@latest", "--index", "/path/to/your/index"]
     }
