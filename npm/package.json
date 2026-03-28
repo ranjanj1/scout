@@ -1,5 +1,5 @@
 {
-  "name": "scout-mcp",
+  "name": "@ranjanj4/scout-mcp",
   "version": "0.1.0",
   "description": "Fast offline document search MCP server — trigram index, SimHash, zero dependencies",
   "keywords": ["mcp", "search", "documents", "offline", "rag"],

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// scout-mcp — downloads the platform binary from GitHub Releases and starts
+// @ranjanj4/scout-mcp — downloads the platform binary from GitHub Releases and starts
 // the MCP server over stdio. All extra args are forwarded to `scout mcp`.
 //
 // Usage (via npx):
-//   npx scout-mcp@latest
-//   npx scout-mcp@latest --index /path/to/index
+//   npx @ranjanj4/scout-mcp@latest
+//   npx @ranjanj4/scout-mcp@latest --index /path/to/index
 
 "use strict";
 
@@ -33,12 +33,12 @@ const key = `${process.platform}-${process.arch}`;
 const asset = ASSET_MAP[key];
 
 if (!asset) {
-  console.error(`scout-mcp: unsupported platform: ${key}`);
+  console.error(`@ranjanj4/scout-mcp: unsupported platform: ${key}`);
   console.error(`Supported: ${Object.keys(ASSET_MAP).join(", ")}`);
   process.exit(1);
 }
 
-const cacheDir = join(homedir(), ".scout-mcp", VERSION);
+const cacheDir = join(homedir(), ".@ranjanj4/scout-mcp", VERSION);
 const binaryName = process.platform === "win32" ? "scout.exe" : "scout";
 const binaryPath = join(cacheDir, binaryName);
 
@@ -68,19 +68,19 @@ async function ensureBinary() {
   mkdirSync(cacheDir, { recursive: true });
 
   const url = `https://github.com/${REPO}/releases/download/v${VERSION}/${asset}`;
-  process.stderr.write(`scout-mcp: downloading ${asset} from GitHub Releases...\n`);
+  process.stderr.write(`@ranjanj4/scout-mcp: downloading ${asset} from GitHub Releases...\n`);
 
   try {
     await download(url, binaryPath);
   } catch (err) {
-    console.error(`scout-mcp: download failed: ${err.message}`);
+    console.error(`@ranjanj4/scout-mcp: download failed: ${err.message}`);
     console.error(`  URL: ${url}`);
     console.error(`  Install manually: https://github.com/${REPO}/releases`);
     process.exit(1);
   }
 
   chmodSync(binaryPath, 0o755);
-  process.stderr.write(`scout-mcp: saved to ${binaryPath}\n`);
+  process.stderr.write(`@ranjanj4/scout-mcp: saved to ${binaryPath}\n`);
 }
 
 // ── Run ───────────────────────────────────────────────────────────────────────
@@ -89,14 +89,14 @@ async function ensureBinary() {
   await ensureBinary();
 
   // Forward all user args after the implicit "mcp" subcommand
-  // e.g.  npx scout-mcp --index /my/index
+  // e.g.  npx @ranjanj4/scout-mcp --index /my/index
   //  →    scout mcp --index /my/index
   const args = ["mcp", ...process.argv.slice(2)];
 
   const result = spawnSync(binaryPath, args, { stdio: "inherit" });
 
   if (result.error) {
-    console.error(`scout-mcp: failed to start: ${result.error.message}`);
+    console.error(`@ranjanj4/scout-mcp: failed to start: ${result.error.message}`);
     process.exit(1);
   }
   process.exit(result.status ?? 0);

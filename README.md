@@ -70,7 +70,7 @@ No Rust required. Add this to your MCP config:
   "mcpServers": {
     "scout": {
       "command": "npx",
-      "args": ["scout-mcp@latest"]
+      "args": ["@ranjanj4/scout-mcp@latest"]
     }
   }
 }
@@ -79,7 +79,7 @@ No Rust required. Add this to your MCP config:
 Or via Claude Code CLI:
 
 ```bash
-claude mcp add scout npx scout-mcp@latest
+claude mcp add scout npx @ranjanj4/scout-mcp@latest
 ```
 
 With a custom index location:
@@ -89,7 +89,7 @@ With a custom index location:
   "mcpServers": {
     "scout": {
       "command": "npx",
-      "args": ["scout-mcp@latest", "--index", "/path/to/your/index"]
+      "args": ["@ranjanj4/scout-mcp@latest", "--index", "/path/to/your/index"]
     }
   }
 }
