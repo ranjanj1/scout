@@ -16,7 +16,7 @@ const { homedir } = require("os");
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
-const REPO = "ranjanj1/doc-search"; // e.g. "ranjan/scout"
+const REPO = "ranjanj1/scout"; // e.g. "ranjan/scout"
 const VERSION = require("../package.json").version;
 
 // Maps Node.js platform/arch → GitHub Release asset name

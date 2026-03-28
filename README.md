@@ -1,14 +1,14 @@
-# doc-search (`ds`)
+# scout
 
 A fast, offline document search CLI built in Rust. No vector embeddings, no BM25, no ML dependencies — just deterministic trigram indexing, SimHash fingerprinting, and structural metadata search.
 
 ```
-ds index ./docs/
-ds search "purchase agreement"
-ds query 'type:contract amount:>1M path:/legal'
-ds similar ./contract_draft.docx
-ds recent --since 7d
-ds clusters ./docs/ --bits=4
+scout index ./docs/
+scout search "purchase agreement"
+scout query 'type:contract amount:>1M path:/legal'
+scout similar ./contract_draft.docx
+scout recent --since 7d
+scout clusters ./docs/ --bits=4
 ```
 
 ---
@@ -44,7 +44,7 @@ Scoring             — trigram overlap + term proximity + recency + structure +
 
 **Trigram index** — splits text into overlapping 3-character windows and builds posting lists. Handles typos, partial matches, and substring queries without needing exact word boundaries.
 
-**SimHash** — computes a 64-bit document fingerprint from word bigram shingles. Two documents with fewer than ~8 differing bits are near-duplicates. Used by `ds similar` and `ds clusters`.
+**SimHash** — computes a 64-bit document fingerprint from word bigram shingles. Two documents with fewer than ~8 differing bits are near-duplicates. Used by `scout similar` and `scout clusters`.
 
 **Structural metadata** — regex-based extraction of dates, currency amounts, email addresses, and document type inference. Used by the DSL filter layer.
 
@@ -109,7 +109,7 @@ With a custom index location:
 
 ### CLI binary
 
-**Download a pre-built binary** from [GitHub Releases](https://github.com/ranjanj1/doc-search/releases), put it in your PATH, then:
+**Download a pre-built binary** from [GitHub Releases](https://github.com/ranjanj1/scout/releases), put it in your PATH, then:
 
 ```bash
 scout index ./docs/
@@ -119,7 +119,7 @@ scout search "purchase agreement"
 **Build from source** (requires Rust 1.75+):
 
 ```bash
-git clone https://github.com/ranjanj1/doc-search
+git clone https://github.com/ranjanj1/scout
 cd scout
 cargo install --path .
 ```
@@ -143,25 +143,25 @@ Respects `.gitignore`, `.ignore`, and `.searchignore` files during walks.
 
 ## Commands
 
-### `ds index <path>`
+### `scout index <path>`
 
 Index a folder. Subsequent runs are incremental — only new or changed files are re-indexed.
 
 ```bash
-ds index ./docs/
-ds index ./docs/ --full        # force full re-index
+scout index ./docs/
+scout index ./docs/ --full        # force full re-index
 ```
 
-### `ds search <query>`
+### `scout search <query>`
 
 Trigram-based fuzzy search. Handles partial words and minor typos.
 
 ```bash
-ds search "purchase agreement"
-ds search "purchse agreem"           # typo-tolerant
-ds search "2024 contract"
-ds search "indemnif"                 # prefix match
-ds search "agreement" -n 5           # top 5 results
+scout search "purchase agreement"
+scout search "purchse agreem"           # typo-tolerant
+scout search "2024 contract"
+scout search "indemnif"                 # prefix match
+scout search "agreement" -n 5           # top 5 results
 ```
 
 **Snippet control:**
@@ -169,14 +169,14 @@ ds search "agreement" -n 5           # top 5 results
 `--context-size N` (default 120) extracts N characters on **both sides** of the match, so the hit sits in the middle of the snippet (~2×N chars total).
 
 ```bash
-ds search "indemnif" --context-size 500    # ~1000 chars around each match
-ds search "indemnif" --full-content        # return entire file text instead of a snippet
+scout search "indemnif" --context-size 500    # ~1000 chars around each match
+scout search "indemnif" --full-content        # return entire file text instead of a snippet
 ```
 
 **RAG usage** — pipe full content as JSON into your LLM:
 
 ```bash
-ds search "purchase price" --full-content --output json -n 3
+scout search "purchase price" --full-content --output json -n 3
 ```
 
 ```json
@@ -196,23 +196,23 @@ import subprocess, json
 
 def retrieve(question: str, top_k: int = 3) -> list[dict]:
     result = subprocess.run(
-        ["ds", "search", question, "--full-content", "--output", "json", "-n", str(top_k)],
+        ["scout", "search", question, "--full-content", "--output", "json", "-n", str(top_k)],
         capture_output=True, text=True,
     )
     return json.loads(result.stdout)
 ```
 
-### `ds query <dsl>`
+### `scout query <dsl>`
 
 Structured search using the filter DSL.
 
 ```bash
-ds query 'type:contract'
-ds query 'amount:>1M'
-ds query 'type:contract amount:>500K path:/legal'
-ds query '"non-disclosure" AND date:>2024-01-01'
-ds query 'type:invoice OR type:receipt'
-ds query 'NOT type:draft'
+scout query 'type:contract'
+scout query 'amount:>1M'
+scout query 'type:contract amount:>500K path:/legal'
+scout query '"non-disclosure" AND date:>2024-01-01'
+scout query 'type:invoice OR type:receipt'
+scout query 'NOT type:draft'
 ```
 
 **DSL reference:**
@@ -230,38 +230,38 @@ ds query 'NOT type:draft'
 | `AND`, `OR`, `NOT` | Boolean operators |
 | `(...)` | Grouping |
 
-### `ds similar <file>`
+### `scout similar <file>`
 
 Find documents similar to a given file using SimHash Hamming distance.
 
 ```bash
-ds similar ./contract_v1.docx
-ds similar ./contract_v1.docx --threshold 12    # looser matching
-ds similar ./contract_v1.docx -n 20             # top 20 results
+scout similar ./contract_v1.docx
+scout similar ./contract_v1.docx --threshold 12    # looser matching
+scout similar ./contract_v1.docx -n 20             # top 20 results
 ```
 
 Similarity score is `1 - (hamming_distance / 64)`. Score of 1.0 = identical content, 0.875 = 8 bits differ.
 
-### `ds recent`
+### `scout recent`
 
 Show recently modified documents, sorted newest first.
 
 ```bash
-ds recent --since 7d      # last 7 days
-ds recent --since 2w      # last 2 weeks
-ds recent --since 3m      # last 3 months
-ds recent --since 1y      # last year
-ds recent --since 2024-06-01   # since a specific date
+scout recent --since 7d      # last 7 days
+scout recent --since 2w      # last 2 weeks
+scout recent --since 3m      # last 3 months
+scout recent --since 1y      # last year
+scout recent --since 2024-06-01   # since a specific date
 ```
 
-### `ds clusters`
+### `scout clusters`
 
 Group documents into similarity clusters using Locality-Sensitive Hashing on SimHash fingerprints.
 
 ```bash
-ds clusters ./docs/
-ds clusters ./docs/ --bits 4    # coarse clustering (fewer, larger groups)
-ds clusters ./docs/ --bits 8    # fine-grained clustering
+scout clusters ./docs/
+scout clusters ./docs/ --bits 4    # coarse clustering (fewer, larger groups)
+scout clusters ./docs/ --bits 8    # fine-grained clustering
 ```
 
 ---
@@ -272,13 +272,13 @@ All commands support `--output plain|json|tsv`:
 
 ```bash
 # Default: human-readable
-ds search "agreement"
+scout search "agreement"
 
 # JSON: newline-delimited, good for scripting
-ds search "agreement" --output json | jq '.[0].path'
+scout search "agreement" --output json | jq '.[0].path'
 
 # TSV: tab-separated path, score, snippet
-ds search "agreement" --output tsv | cut -f1
+scout search "agreement" --output tsv | cut -f1
 ```
 
 ---
@@ -302,7 +302,7 @@ The index is stored in `.searchindex/` and resolved with this precedence:
   metadata.redb        # structural metadata (dates, amounts, etc.)
 ```
 
-Incremental indexing: each `ds index` run compares `mtime` and `xxh64` file hash. Unchanged files are skipped. Deleted files are removed from the index. Segments merge automatically when count exceeds 8.
+Incremental indexing: each `scout index` run compares `mtime` and `xxh64` file hash. Unchanged files are skipped. Deleted files are removed from the index. Segments merge automatically when count exceeds 8.
 
 To exclude files from indexing, add patterns to `.searchignore` (same syntax as `.gitignore`).
 
@@ -327,7 +327,7 @@ cargo bench
 
 # Build release binary
 cargo build --release
-./target/release/ds --help
+./target/release/scout --help
 ```
 
 **Project layout:**
