@@ -143,7 +143,7 @@ With a custom index location:
 
 ### CLI binary
 
-**Download a pre-built binary** from [GitHub Releases](https://github.com/ranjanj1/scout/releases), put it in your PATH, then:
+**Download a pre-built binary** from [GitHub Releases](https://github.com/ranjanj1/contextgrep/releases), put it in your PATH, then:
 
 ```bash
 contextgrep index ./docs/
@@ -153,8 +153,8 @@ contextgrep search "purchase agreement"
 **Build from source** (requires Rust 1.75+):
 
 ```bash
-git clone https://github.com/ranjanj1/scout
-cd scout
+git clone https://github.com/ranjanj1/contextgrep
+cd contextgrep
 cargo install --path .
 ```
 

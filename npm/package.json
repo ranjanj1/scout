@@ -3,10 +3,10 @@
   "version": "0.1.2",
   "description": "MCP server for fast offline document search — grep your files with context",
   "keywords": ["mcp", "search", "grep", "documents", "offline", "rag", "file-search", "context"],
-  "homepage": "https://github.com/ranjanj1/scout",
+  "homepage": "https://github.com/ranjanj1/contextgrep",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ranjanj1/scout"
+    "url": "https://github.com/ranjanj1/contextgrep"
   },
   "license": "MIT",
   "bin": {
