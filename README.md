@@ -13,6 +13,35 @@ scout clusters ./docs/ --bits=4
 
 ---
 
+## Quick Start
+
+**1. Install the MCP server** (one-time)
+
+```bash
+claude mcp add scout npx @ranjanj4/scout-mcp@latest
+```
+
+> macOS Homebrew users: use `$(which npx)` instead of `npx`
+
+**2. Index your documents** (one-time per folder)
+
+Just tell your AI assistant:
+
+> *"Index my documents at /Users/john/Documents/contracts"*
+
+The assistant calls the `index` tool automatically. The index is saved to `.searchindex/` inside that folder — subsequent runs are incremental and only process new or changed files.
+
+**3. Start searching**
+
+> *"Find all contracts mentioning indemnification"*
+> *"Which documents have a purchase price over $1M?"*
+> *"Show me files modified in the last 7 days"*
+> *"Find documents similar to this NDA"*
+
+The assistant picks the right tool (`search`, `query`, `recent`, `similar`) based on your question.
+
+---
+
 ## Why not vectors or BM25?
 
 | | This tool | Vector search | BM25 |
