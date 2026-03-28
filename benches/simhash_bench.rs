@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use scout::indexer::simhash::{compute_simhash, find_similar};
+use contextgrep::indexer::simhash::{compute_simhash, find_similar};
 
 const SAMPLE: &str = include_str!("../tests/fixtures/sample.txt");
 

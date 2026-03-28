@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use scout::indexer::trigram::extract_trigrams;
+use contextgrep::indexer::trigram::extract_trigrams;
 
 fn bench_extract_query_trigrams(c: &mut Criterion) {
     c.bench_function("extract_query_trigrams", |b| {

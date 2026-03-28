@@ -7,9 +7,9 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use tokio::io::{stdin, stdout};
 
-use scout::error::{Result as ScoutResult, SearchError};
+use contextgrep::error::{Result as ScoutResult, SearchError};
 
-/// Run the scout MCP server over stdio.
+/// Run the contextgrep MCP server over stdio.
 pub fn run_mcp_server(index_override: Option<PathBuf>) -> ScoutResult<()> {
     let rt = tokio::runtime::Runtime::new()
         .map_err(|e| SearchError::Mmap(e.to_string()))?;
@@ -44,7 +44,7 @@ impl ScoutMcp {
         let binary = std::env::current_exe()
             .ok()
             .and_then(|p| p.to_str().map(|s| s.to_owned()))
-            .unwrap_or_else(|| "scout".to_owned());
+            .unwrap_or_else(|| "contextgrep".to_owned());
         Self {
             binary,
             index,
@@ -72,7 +72,7 @@ impl ScoutMcp {
                     stdout
                 }
             }
-            Err(e) => format!("error: failed to run scout: {e}"),
+            Err(e) => format!("error: failed to run contextgrep: {e}"),
         }
     }
 }

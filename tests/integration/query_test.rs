@@ -1,10 +1,10 @@
 use std::path::PathBuf;
 
-use scout::config::IndexConfig;
-use scout::indexer::pipeline::run_index;
-use scout::search::filters::matches_filters;
-use scout::search::query::parse_query;
-use scout::storage::store::DocStore;
+use contextgrep::config::IndexConfig;
+use contextgrep::indexer::pipeline::run_index;
+use contextgrep::search::filters::matches_filters;
+use contextgrep::search::query::parse_query;
+use contextgrep::storage::store::DocStore;
 
 fn fixtures_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures")

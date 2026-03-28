@@ -1,17 +1,17 @@
 [package]
-name = "scout"
-version = "0.1.0"
+name = "contextgrep"
+version = "0.1.2"
 edition = "2021"
 rust-version = "1.75"
-description = "Fast offline document search using trigrams, SimHash, and structural metadata — no vectors, no BM25, with MCP server"
+description = "Grep your documents with context — fast offline search for PDFs, DOCX, Markdown and code"
 license = "MIT"
 
 [[bin]]
-name = "scout"
+name = "contextgrep"
 path = "src/main.rs"
 
 [lib]
-name = "scout"
+name = "contextgrep"
 path = "src/lib.rs"
 
 [dependencies]

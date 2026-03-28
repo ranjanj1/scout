@@ -33,7 +33,7 @@ pub enum SearchError {
     #[error("Query syntax error: {0}")]
     QuerySyntax(String),
 
-    #[error("Index not found at {0}. Run `scout index <path>` first.")]
+    #[error("Index not found at {0}. Run `contextgrep index <path>` first.")]
     IndexNotFound(PathBuf),
 
     #[error("Corrupt index: {0}")]

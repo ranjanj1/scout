@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // contextgrep — downloads the platform binary from GitHub Releases and starts
-// the MCP server over stdio. All extra args are forwarded to `scout mcp`.
+// the MCP server over stdio. All extra args are forwarded to `contextgrep mcp`.
 //
 // Usage (via npx):
 //   npx contextgrep@latest
@@ -21,10 +21,10 @@ const VERSION = require("../package.json").version;
 
 // Maps Node.js platform/arch → GitHub Release asset name
 const ASSET_MAP = {
-  "darwin-arm64":  "scout-macos-arm64",
-  "darwin-x64":    "scout-macos-x64",
-  "linux-x64":     "scout-linux-x64",
-  "win32-x64":     "scout-windows-x64.exe",
+  "darwin-arm64":  "contextgrep-macos-arm64",
+  "darwin-x64":    "contextgrep-macos-x64",
+  "linux-x64":     "contextgrep-linux-x64",
+  "win32-x64":     "contextgrep-windows-x64.exe",
 };
 
 // ── Resolve binary ────────────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ if (!asset) {
 }
 
 const cacheDir = join(homedir(), ".contextgrep", VERSION);
-const binaryName = process.platform === "win32" ? "scout.exe" : "scout";
+const binaryName = process.platform === "win32" ? "contextgrep.exe" : "contextgrep";
 const binaryPath = join(cacheDir, binaryName);
 
 // ── Download if needed ────────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ async function ensureBinary() {
 
   // Forward all user args after the implicit "mcp" subcommand
   // e.g.  npx contextgrep --index /my/index
-  //  →    scout mcp --index /my/index
+  //  →    contextgrep mcp --index /my/index
   const args = ["mcp", ...process.argv.slice(2)];
 
   const result = spawnSync(binaryPath, args, { stdio: "inherit" });

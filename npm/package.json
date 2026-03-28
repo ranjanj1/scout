@@ -1,6 +1,6 @@
 {
   "name": "contextgrep",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "MCP server for fast offline document search — grep your files with context",
   "keywords": ["mcp", "search", "grep", "documents", "offline", "rag", "file-search", "context"],
   "homepage": "https://github.com/ranjanj1/scout",

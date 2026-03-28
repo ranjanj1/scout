@@ -3,20 +3,20 @@ use std::path::Path;
 
 use clap::Parser as ClapParser;
 
-use scout::cli::commands::{Cli, Command};
-use scout::cli::output::{render_error, render_results, SearchResult};
-use scout::config::{require_index, resolve_index};
-use scout::error::Result;
-use scout::indexer::pipeline::run_index;
-use scout::indexer::simhash::{compute_simhash, find_similar, lsh_clusters};
-use scout::indexer::trigram::extract_trigrams;
-use scout::parser::walker::{detect_kind, WalkEntry};
-use scout::search::filters::{matches_filters, parse_duration_cutoff};
-use scout::search::query::{parse_query, QueryNode};
-use scout::search::scorer::{rank, score, ScoredDoc, ScoringInput, ScoringWeights};
-use scout::storage::mmap::PostingsReader;
-use scout::storage::segment::{list_segments, read_simhash};
-use scout::storage::store::DocStore;
+use contextgrep::cli::commands::{Cli, Command};
+use contextgrep::cli::output::{render_error, render_results, SearchResult};
+use contextgrep::config::{require_index, resolve_index};
+use contextgrep::error::Result;
+use contextgrep::indexer::pipeline::run_index;
+use contextgrep::indexer::simhash::{compute_simhash, find_similar, lsh_clusters};
+use contextgrep::indexer::trigram::extract_trigrams;
+use contextgrep::parser::walker::{detect_kind, WalkEntry};
+use contextgrep::search::filters::{matches_filters, parse_duration_cutoff};
+use contextgrep::search::query::{parse_query, QueryNode};
+use contextgrep::search::scorer::{rank, score, ScoredDoc, ScoringInput, ScoringWeights};
+use contextgrep::storage::mmap::PostingsReader;
+use contextgrep::storage::segment::{list_segments, read_simhash};
+use contextgrep::storage::store::DocStore;
 
 mod mcp;
 
@@ -219,7 +219,7 @@ fn run(cli: Cli) -> Result<()> {
                     mtime,
                     size: 0,
                 };
-                let parsed = scout::parser::parse(&entry)?;
+                let parsed = contextgrep::parser::parse(&entry)?;
                 compute_simhash(&parsed.text)
             };
 
@@ -382,7 +382,7 @@ fn intersect_trigram_candidates(
     reader: &PostingsReader,
     query: &str,
 ) -> Vec<u32> {
-    use scout::indexer::trigram::extract_trigrams;
+    use contextgrep::indexer::trigram::extract_trigrams;
 
     let mut result: HashSet<u32> = HashSet::new();
 

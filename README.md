@@ -3,12 +3,12 @@
 Grep your documents with context. Fast offline search for PDFs, DOCX, Markdown, and code — no vectors, no cloud, no ML dependencies. Trigram indexing + SimHash fingerprinting built in Rust.
 
 ```
-scout index ./docs/
-scout search "purchase agreement"       # grep with context
-scout query 'type:contract amount:>1M'  # structured DSL
-scout similar ./contract_draft.docx    # find near-duplicates
-scout recent --since 7d
-scout clusters ./docs/
+contextgrep index ./docs/
+contextgrep search "purchase agreement"       # grep with context
+contextgrep query 'type:contract amount:>1M'  # structured DSL
+contextgrep similar ./contract_draft.docx    # find near-duplicates
+contextgrep recent --since 7d
+contextgrep clusters ./docs/
 ```
 
 ---
@@ -73,7 +73,7 @@ Scoring             — trigram overlap + term proximity + recency + structure +
 
 **Trigram index** — splits text into overlapping 3-character windows and builds posting lists. Handles typos, partial matches, and substring queries without needing exact word boundaries.
 
-**SimHash** — computes a 64-bit document fingerprint from word bigram shingles. Two documents with fewer than ~8 differing bits are near-duplicates. Used by `scout similar` and `scout clusters`.
+**SimHash** — computes a 64-bit document fingerprint from word bigram shingles. Two documents with fewer than ~8 differing bits are near-duplicates. Used by `contextgrep similar` and `contextgrep clusters`.
 
 **Structural metadata** — regex-based extraction of dates, currency amounts, email addresses, and document type inference. Used by the DSL filter layer.
 
@@ -146,8 +146,8 @@ With a custom index location:
 **Download a pre-built binary** from [GitHub Releases](https://github.com/ranjanj1/scout/releases), put it in your PATH, then:
 
 ```bash
-scout index ./docs/
-scout search "purchase agreement"
+contextgrep index ./docs/
+contextgrep search "purchase agreement"
 ```
 
 **Build from source** (requires Rust 1.75+):
@@ -177,25 +177,25 @@ Respects `.gitignore`, `.ignore`, and `.searchignore` files during walks.
 
 ## Commands
 
-### `scout index <path>`
+### `contextgrep index <path>`
 
 Index a folder. Subsequent runs are incremental — only new or changed files are re-indexed.
 
 ```bash
-scout index ./docs/
-scout index ./docs/ --full        # force full re-index
+contextgrep index ./docs/
+contextgrep index ./docs/ --full        # force full re-index
 ```
 
-### `scout search <query>`
+### `contextgrep search <query>`
 
 Trigram-based fuzzy search. Handles partial words and minor typos.
 
 ```bash
-scout search "purchase agreement"
-scout search "purchse agreem"           # typo-tolerant
-scout search "2024 contract"
-scout search "indemnif"                 # prefix match
-scout search "agreement" -n 5           # top 5 results
+contextgrep search "purchase agreement"
+contextgrep search "purchse agreem"           # typo-tolerant
+contextgrep search "2024 contract"
+contextgrep search "indemnif"                 # prefix match
+contextgrep search "agreement" -n 5           # top 5 results
 ```
 
 **Snippet control:**
@@ -203,14 +203,14 @@ scout search "agreement" -n 5           # top 5 results
 `--context-size N` (default 120) extracts N characters on **both sides** of the match, so the hit sits in the middle of the snippet (~2×N chars total).
 
 ```bash
-scout search "indemnif" --context-size 500    # ~1000 chars around each match
-scout search "indemnif" --full-content        # return entire file text instead of a snippet
+contextgrep search "indemnif" --context-size 500    # ~1000 chars around each match
+contextgrep search "indemnif" --full-content        # return entire file text instead of a snippet
 ```
 
 **RAG usage** — pipe full content as JSON into your LLM:
 
 ```bash
-scout search "purchase price" --full-content --output json -n 3
+contextgrep search "purchase price" --full-content --output json -n 3
 ```
 
 ```json
@@ -230,23 +230,23 @@ import subprocess, json
 
 def retrieve(question: str, top_k: int = 3) -> list[dict]:
     result = subprocess.run(
-        ["scout", "search", question, "--full-content", "--output", "json", "-n", str(top_k)],
+        ["contextgrep", "search", question, "--full-content", "--output", "json", "-n", str(top_k)],
         capture_output=True, text=True,
     )
     return json.loads(result.stdout)
 ```
 
-### `scout query <dsl>`
+### `contextgrep query <dsl>`
 
 Structured search using the filter DSL.
 
 ```bash
-scout query 'type:contract'
-scout query 'amount:>1M'
-scout query 'type:contract amount:>500K path:/legal'
-scout query '"non-disclosure" AND date:>2024-01-01'
-scout query 'type:invoice OR type:receipt'
-scout query 'NOT type:draft'
+contextgrep query 'type:contract'
+contextgrep query 'amount:>1M'
+contextgrep query 'type:contract amount:>500K path:/legal'
+contextgrep query '"non-disclosure" AND date:>2024-01-01'
+contextgrep query 'type:invoice OR type:receipt'
+contextgrep query 'NOT type:draft'
 ```
 
 **DSL reference:**
@@ -264,38 +264,38 @@ scout query 'NOT type:draft'
 | `AND`, `OR`, `NOT` | Boolean operators |
 | `(...)` | Grouping |
 
-### `scout similar <file>`
+### `contextgrep similar <file>`
 
 Find documents similar to a given file using SimHash Hamming distance.
 
 ```bash
-scout similar ./contract_v1.docx
-scout similar ./contract_v1.docx --threshold 12    # looser matching
-scout similar ./contract_v1.docx -n 20             # top 20 results
+contextgrep similar ./contract_v1.docx
+contextgrep similar ./contract_v1.docx --threshold 12    # looser matching
+contextgrep similar ./contract_v1.docx -n 20             # top 20 results
 ```
 
 Similarity score is `1 - (hamming_distance / 64)`. Score of 1.0 = identical content, 0.875 = 8 bits differ.
 
-### `scout recent`
+### `contextgrep recent`
 
 Show recently modified documents, sorted newest first.
 
 ```bash
-scout recent --since 7d      # last 7 days
-scout recent --since 2w      # last 2 weeks
-scout recent --since 3m      # last 3 months
-scout recent --since 1y      # last year
-scout recent --since 2024-06-01   # since a specific date
+contextgrep recent --since 7d      # last 7 days
+contextgrep recent --since 2w      # last 2 weeks
+contextgrep recent --since 3m      # last 3 months
+contextgrep recent --since 1y      # last year
+contextgrep recent --since 2024-06-01   # since a specific date
 ```
 
-### `scout clusters`
+### `contextgrep clusters`
 
 Group documents into similarity clusters using Locality-Sensitive Hashing on SimHash fingerprints.
 
 ```bash
-scout clusters ./docs/
-scout clusters ./docs/ --bits 4    # coarse clustering (fewer, larger groups)
-scout clusters ./docs/ --bits 8    # fine-grained clustering
+contextgrep clusters ./docs/
+contextgrep clusters ./docs/ --bits 4    # coarse clustering (fewer, larger groups)
+contextgrep clusters ./docs/ --bits 8    # fine-grained clustering
 ```
 
 ---
@@ -306,13 +306,13 @@ All commands support `--output plain|json|tsv`:
 
 ```bash
 # Default: human-readable
-scout search "agreement"
+contextgrep search "agreement"
 
 # JSON: newline-delimited, good for scripting
-scout search "agreement" --output json | jq '.[0].path'
+contextgrep search "agreement" --output json | jq '.[0].path'
 
 # TSV: tab-separated path, score, snippet
-scout search "agreement" --output tsv | cut -f1
+contextgrep search "agreement" --output tsv | cut -f1
 ```
 
 ---
@@ -336,7 +336,7 @@ The index is stored in `.searchindex/` and resolved with this precedence:
   metadata.redb        # structural metadata (dates, amounts, etc.)
 ```
 
-Incremental indexing: each `scout index` run compares `mtime` and `xxh64` file hash. Unchanged files are skipped. Deleted files are removed from the index. Segments merge automatically when count exceeds 8.
+Incremental indexing: each `contextgrep index` run compares `mtime` and `xxh64` file hash. Unchanged files are skipped. Deleted files are removed from the index. Segments merge automatically when count exceeds 8.
 
 To exclude files from indexing, add patterns to `.searchignore` (same syntax as `.gitignore`).
 
@@ -361,7 +361,7 @@ cargo bench
 
 # Build release binary
 cargo build --release
-./target/release/scout --help
+./target/release/contextgrep --help
 ```
 
 **Project layout:**

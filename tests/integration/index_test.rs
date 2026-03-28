@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
-use scout::config::IndexConfig;
-use scout::indexer::pipeline::run_index;
+use contextgrep::config::IndexConfig;
+use contextgrep::indexer::pipeline::run_index;
 
 fn fixtures_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures")

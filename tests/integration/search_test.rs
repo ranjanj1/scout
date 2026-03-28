@@ -1,14 +1,14 @@
 use std::collections::HashSet;
 use std::path::PathBuf;
 
-use scout::config::IndexConfig;
-use scout::indexer::pipeline::run_index;
-use scout::indexer::trigram::extract_trigrams;
-use scout::search::query::QueryNode;
-use scout::search::scorer::{rank, score, ScoredDoc, ScoringInput, ScoringWeights};
-use scout::storage::mmap::PostingsReader;
-use scout::storage::segment::list_segments;
-use scout::storage::store::DocStore;
+use contextgrep::config::IndexConfig;
+use contextgrep::indexer::pipeline::run_index;
+use contextgrep::indexer::trigram::extract_trigrams;
+use contextgrep::search::query::QueryNode;
+use contextgrep::search::scorer::{rank, score, ScoredDoc, ScoringInput, ScoringWeights};
+use contextgrep::storage::mmap::PostingsReader;
+use contextgrep::storage::segment::list_segments;
+use contextgrep::storage::store::DocStore;
 
 fn fixtures_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures")

@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use scout::indexer::trigram::{extract_trigrams, extract_trigrams_with_positions};
+use contextgrep::indexer::trigram::{extract_trigrams, extract_trigrams_with_positions};
 
 const SAMPLE_10KB: &str = include_str!("../tests/fixtures/sample.txt");
 
