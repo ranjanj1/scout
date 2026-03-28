@@ -1,0 +1,6 @@
+/target
+.searchindex/
+*.lock
+!Cargo.lock
+logs.txt
+.env

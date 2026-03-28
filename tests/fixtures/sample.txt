@@ -1,0 +1,19 @@
+Agreement for Services
+
+This agreement is entered into as of January 15, 2024, by and between Acme Corporation
+("Client") and TechCorp Inc. ("Provider").
+
+1. Services
+The Provider agrees to provide software development services as described in Schedule A.
+
+2. Payment
+The Client shall pay $50,000 upon signing, with additional payments of $25,000 per milestone.
+Total contract value: $150,000.
+
+3. Term
+This agreement commences on 2024-01-15 and expires on 2024-12-31.
+
+4. Confidentiality
+Both parties agree to maintain confidentiality of all proprietary information.
+
+Contact: legal@acmecorp.com

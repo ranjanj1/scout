@@ -1,0 +1,363 @@
+# doc-search (`ds`)
+
+A fast, offline document search CLI built in Rust. No vector embeddings, no BM25, no ML dependencies — just deterministic trigram indexing, SimHash fingerprinting, and structural metadata search.
+
+```
+ds index ./docs/
+ds search "purchase agreement"
+ds query 'type:contract amount:>1M path:/legal'
+ds similar ./contract_draft.docx
+ds recent --since 7d
+ds clusters ./docs/ --bits=4
+```
+
+---
+
+## Why not vectors or BM25?
+
+| | This tool | Vector search | BM25 |
+|---|---|---|---|
+| Works offline | yes | no (needs model) | yes |
+| Deterministic | yes | no | yes |
+| Handles typos/partials | yes | sometimes | no |
+| Cost | zero | $$$ (inference) | zero |
+| Explainable results | yes | no | partially |
+| Finds near-duplicates | yes | yes | no |
+
+The goal: something that feels as fast as `grep`, understands document structure, and needs zero infrastructure.
+
+---
+
+## How it works
+
+Search runs in 3 stages:
+
+```
+Query
+  ↓
+Trigram index       — fast fuzzy/substring candidate retrieval
+  ↓
+Structural filter   — hard constraints (type:, path:, amount:, date:)
+  ↓
+Scoring             — trigram overlap + term proximity + recency + structure + title boost
+```
+
+**Trigram index** — splits text into overlapping 3-character windows and builds posting lists. Handles typos, partial matches, and substring queries without needing exact word boundaries.
+
+**SimHash** — computes a 64-bit document fingerprint from word bigram shingles. Two documents with fewer than ~8 differing bits are near-duplicates. Used by `ds similar` and `ds clusters`.
+
+**Structural metadata** — regex-based extraction of dates, currency amounts, email addresses, and document type inference. Used by the DSL filter layer.
+
+**Scoring formula:**
+```
+score = 0.45 × trigram_overlap
+      + 0.20 × term_proximity
+      + 0.10 × recency_decay
+      + 0.20 × structural_field_match
+      + 0.05 × title_boost
+```
+
+---
+
+## Installation
+
+### MCP server (Claude Code, Claude Desktop, Cursor, VS Code…)
+
+No Rust required. Add this to your MCP config:
+
+```json
+{
+  "mcpServers": {
+    "scout": {
+      "command": "npx",
+      "args": ["scout-mcp@latest"]
+    }
+  }
+}
+```
+
+Or via Claude Code CLI:
+
+```bash
+claude mcp add scout npx scout-mcp@latest
+```
+
+With a custom index location:
+
+```json
+{
+  "mcpServers": {
+    "scout": {
+      "command": "npx",
+      "args": ["scout-mcp@latest", "--index", "/path/to/your/index"]
+    }
+  }
+}
+```
+
+**Config file locations:**
+
+| Client | Config file |
+|---|---|
+| Claude Code | `~/.claude/settings.json` |
+| Claude Desktop (macOS) | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Cursor | `~/.cursor/mcp.json` or `.cursor/mcp.json` in project |
+| VS Code | `.vscode/mcp.json` |
+| Zed | `~/.config/zed/settings.json` → `context_servers` |
+
+---
+
+### CLI binary
+
+**Download a pre-built binary** from [GitHub Releases](https://github.com/ranjanj1/doc-search/releases), put it in your PATH, then:
+
+```bash
+scout index ./docs/
+scout search "purchase agreement"
+```
+
+**Build from source** (requires Rust 1.75+):
+
+```bash
+git clone https://github.com/ranjanj1/doc-search
+cd scout
+cargo install --path .
+```
+
+---
+
+## Supported file types
+
+| Type | Extensions |
+|---|---|
+| Plain text | `.txt`, `.text` |
+| Markdown | `.md`, `.markdown` |
+| PDF | `.pdf` |
+| Word documents | `.docx` |
+| Config/data | `.toml`, `.yaml`, `.yml`, `.json` |
+| Code | `.rs`, `.py`, `.js`, `.ts`, `.go`, `.java`, `.c`, `.cpp`, `.rb`, `.swift`, `.kt`, `.sh` |
+
+Respects `.gitignore`, `.ignore`, and `.searchignore` files during walks.
+
+---
+
+## Commands
+
+### `ds index <path>`
+
+Index a folder. Subsequent runs are incremental — only new or changed files are re-indexed.
+
+```bash
+ds index ./docs/
+ds index ./docs/ --full        # force full re-index
+```
+
+### `ds search <query>`
+
+Trigram-based fuzzy search. Handles partial words and minor typos.
+
+```bash
+ds search "purchase agreement"
+ds search "purchse agreem"           # typo-tolerant
+ds search "2024 contract"
+ds search "indemnif"                 # prefix match
+ds search "agreement" -n 5           # top 5 results
+```
+
+**Snippet control:**
+
+`--context-size N` (default 120) extracts N characters on **both sides** of the match, so the hit sits in the middle of the snippet (~2×N chars total).
+
+```bash
+ds search "indemnif" --context-size 500    # ~1000 chars around each match
+ds search "indemnif" --full-content        # return entire file text instead of a snippet
+```
+
+**RAG usage** — pipe full content as JSON into your LLM:
+
+```bash
+ds search "purchase price" --full-content --output json -n 3
+```
+
+```json
+[
+  {
+    "path": "./docs/acquisition.pdf",
+    "score": 0.72,
+    "type": "contract",
+    "snippet": "...the purchase price shall be...",
+    "content": "Agreement for Services\n\nThis agreement..."
+  }
+]
+```
+
+```python
+import subprocess, json
+
+def retrieve(question: str, top_k: int = 3) -> list[dict]:
+    result = subprocess.run(
+        ["ds", "search", question, "--full-content", "--output", "json", "-n", str(top_k)],
+        capture_output=True, text=True,
+    )
+    return json.loads(result.stdout)
+```
+
+### `ds query <dsl>`
+
+Structured search using the filter DSL.
+
+```bash
+ds query 'type:contract'
+ds query 'amount:>1M'
+ds query 'type:contract amount:>500K path:/legal'
+ds query '"non-disclosure" AND date:>2024-01-01'
+ds query 'type:invoice OR type:receipt'
+ds query 'NOT type:draft'
+```
+
+**DSL reference:**
+
+| Syntax | Meaning |
+|---|---|
+| `type:contract` | Document type equals (fuzzy) |
+| `amount:>1M` | Any extracted amount > 1,000,000 |
+| `amount:<=50000` | Any extracted amount ≤ 50,000 |
+| `date:>2024-01-01` | Any extracted date after Jan 1 2024 |
+| `date:>2024` | Any extracted date after 2024 |
+| `path:/legal` | File path contains `/legal` |
+| `email:@acme.com` | Email matching `@acme.com` found in doc |
+| `"exact phrase"` | Phrase must appear as written |
+| `AND`, `OR`, `NOT` | Boolean operators |
+| `(...)` | Grouping |
+
+### `ds similar <file>`
+
+Find documents similar to a given file using SimHash Hamming distance.
+
+```bash
+ds similar ./contract_v1.docx
+ds similar ./contract_v1.docx --threshold 12    # looser matching
+ds similar ./contract_v1.docx -n 20             # top 20 results
+```
+
+Similarity score is `1 - (hamming_distance / 64)`. Score of 1.0 = identical content, 0.875 = 8 bits differ.
+
+### `ds recent`
+
+Show recently modified documents, sorted newest first.
+
+```bash
+ds recent --since 7d      # last 7 days
+ds recent --since 2w      # last 2 weeks
+ds recent --since 3m      # last 3 months
+ds recent --since 1y      # last year
+ds recent --since 2024-06-01   # since a specific date
+```
+
+### `ds clusters`
+
+Group documents into similarity clusters using Locality-Sensitive Hashing on SimHash fingerprints.
+
+```bash
+ds clusters ./docs/
+ds clusters ./docs/ --bits 4    # coarse clustering (fewer, larger groups)
+ds clusters ./docs/ --bits 8    # fine-grained clustering
+```
+
+---
+
+## Output formats
+
+All commands support `--output plain|json|tsv`:
+
+```bash
+# Default: human-readable
+ds search "agreement"
+
+# JSON: newline-delimited, good for scripting
+ds search "agreement" --output json | jq '.[0].path'
+
+# TSV: tab-separated path, score, snippet
+ds search "agreement" --output tsv | cut -f1
+```
+
+---
+
+## Index location
+
+The index is stored in `.searchindex/` and resolved with this precedence:
+
+1. `--index <path>` CLI flag
+2. `.searchindex/` in the current directory or any parent (walks up)
+3. `~/.searchindex/` as a global fallback
+
+```
+.searchindex/
+  segments/
+    0000/
+      postings.trgm    # trigram posting lists (mmap binary)
+      simhash.bin      # flat u64 array of SimHash fingerprints
+    0001/              # incremental segment from next run
+  docstore.redb        # document metadata and snippets
+  metadata.redb        # structural metadata (dates, amounts, etc.)
+```
+
+Incremental indexing: each `ds index` run compares `mtime` and `xxh64` file hash. Unchanged files are skipped. Deleted files are removed from the index. Segments merge automatically when count exceeds 8.
+
+To exclude files from indexing, add patterns to `.searchignore` (same syntax as `.gitignore`).
+
+---
+
+## Development
+
+```bash
+# Run all tests
+cargo test
+
+# Run specific test file
+cargo test --test index_test
+
+# Run unit tests for a module
+cargo test trigram
+cargo test simhash
+cargo test query
+
+# Run benchmarks
+cargo bench
+
+# Build release binary
+cargo build --release
+./target/release/ds --help
+```
+
+**Project layout:**
+
+```
+src/
+  cli/          commands.rs, output.rs
+  parser/       text, pdf, docx, code, walker, metadata
+  indexer/      trigram, simhash, schema, pipeline
+  search/       query DSL, filters, proximity, scorer
+  storage/      mmap (postings), redb store, segment manager
+  config.rs     index path resolution
+  error.rs      unified error type
+tests/
+  fixtures/     sample.txt, sample.md, sample.rs
+  integration/  index_test, search_test, query_test
+benches/        trigram, simhash, search benchmarks
+```
+
+---
+
+## Limitations
+
+- **Semantic queries will miss results.** Searching for "indemnification" won't match a document that only says "liability protection". Trigrams are lexical, not conceptual.
+- **PDF quality varies.** Image-based PDFs (scanned documents) produce no text.
+- **No ranking feedback loop.** Scoring weights are fixed defaults; there's no click-through learning.
+- **Single-machine only.** No distributed index, no server mode.
+
+---
+
+## License
+
+MIT

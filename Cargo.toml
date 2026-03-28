@@ -1,0 +1,96 @@
+[package]
+name = "scout"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Fast offline document search using trigrams, SimHash, and structural metadata — no vectors, no BM25, with MCP server"
+license = "MIT"
+
+[[bin]]
+name = "scout"
+path = "src/main.rs"
+
+[lib]
+name = "scout"
+path = "src/lib.rs"
+
+[dependencies]
+# CLI
+clap = { version = "4.5", features = ["derive", "cargo", "unicode"] }
+
+# File walking with .gitignore / .ignore support
+ignore = "0.4"
+
+# Parallelism
+rayon = "1.10"
+
+# Embedded KV store — pure Rust, ACID, crash-safe
+redb = "2.1"
+
+# Memory-mapped file I/O for postings.trgm
+memmap2 = "0.9"
+
+# PDF parsing
+pdf-extract = "0.7"
+lopdf = "0.33"
+
+# DOCX: ZIP container + XML parsing
+zip = "2.1"
+quick-xml = { version = "0.36", features = ["serialize"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+bincode = { version = "2.0", features = ["serde"] }
+serde_json = "1.0"
+
+# Hashing — xxh64 for change detection, SimHash accumulation
+xxhash-rust = { version = "0.8", features = ["xxh64"] }
+
+# Regex for structural metadata extraction (dates, amounts, emails)
+regex = "1.10"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# MCP server
+rmcp = { version = "1.3.0", features = ["server", "macros", "transport-io"] }
+tokio = { version = "1", features = ["full"] }
+schemars = "1.0"
+
+# Date/time (--since flags, date metadata)
+chrono = { version = "0.4", features = ["serde"] }
+
+# Progress bars during indexing
+indicatif = "0.17"
+
+# Fast hashmaps for trigram accumulation
+ahash = "0.8"
+dashmap = "6.0"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+tempfile = "3.10"
+assert_cmd = "2.0"
+predicates = "3.1"
+
+[[bench]]
+name = "trigram_bench"
+harness = false
+
+[[bench]]
+name = "simhash_bench"
+harness = false
+
+[[bench]]
+name = "search_bench"
+harness = false
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+opt-level = 3
+strip = true
+
+[profile.dev]
+opt-level = 1
