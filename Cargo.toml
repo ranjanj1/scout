@@ -5,6 +5,11 @@ edition = "2021"
 rust-version = "1.75"
 description = "Grep your documents with context — fast offline search for PDFs, DOCX, Markdown and code"
 license = "MIT"
+repository = "https://github.com/ranjanj1/contextgrep"
+homepage = "https://github.com/ranjanj1/contextgrep"
+documentation = "https://github.com/ranjanj1/contextgrep#readme"
+keywords = ["search", "grep", "documents", "mcp", "offline"]
+categories = ["command-line-utilities", "text-processing"]
 
 [[bin]]
 name = "contextgrep"
