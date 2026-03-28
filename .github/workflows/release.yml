@@ -16,12 +16,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest       # arm64 runner
+          - os: macos-latest         # arm64 runner (Apple Silicon)
             target: aarch64-apple-darwin
             asset_name: scout-macos-arm64
             binary: scout
 
-          - os: macos-13           # x86_64 runner
+          - os: macos-latest         # cross-compile x86_64 from arm64 runner
             target: x86_64-apple-darwin
             asset_name: scout-macos-x64
             binary: scout
@@ -38,6 +38,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -60,6 +62,8 @@ jobs:
 
       - name: Upload to release
         uses: softprops/action-gh-release@v2
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         with:
           files: ${{ matrix.asset_name }}
           generate_release_notes: true
