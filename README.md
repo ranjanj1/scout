@@ -4,7 +4,7 @@ Grep your documents with context. Fast offline search for PDFs, DOCX, Markdown, 
 
 ## Demo
 
-[![Watch the demo](https://img.youtube.com/vi/atyxfUS4oTM/0.jpg)](https://youtu.be/atyxfUS4oTM)
+[![Watch the demo](https://ytcards.demolab.com/?id=atyxfUS4oTM&title=contextgrep+demo&background_color=%230d1117&title_color=%23ffffff&stats_color=%23dedede&width=640)](https://youtu.be/atyxfUS4oTM)
 
 ```
 contextgrep index ./docs/
