@@ -2,6 +2,10 @@
 
 Grep your documents with context. Fast offline search for PDFs, DOCX, Markdown, and code — no vectors, no cloud, no ML dependencies. Trigram indexing + SimHash fingerprinting built in Rust.
 
+## Demo
+
+[![Watch the demo](https://img.youtube.com/vi/atyxfUS4oTM/0.jpg)](https://youtu.be/atyxfUS4oTM)
+
 ```
 contextgrep index ./docs/
 contextgrep search "purchase agreement"       # grep with context
